@@ -1,5 +1,5 @@
 import torch
-
+import torchvision
 
 
 class TensorView(object):
@@ -10,8 +10,9 @@ class TensorView(object):
     def __init__(self, *view_dims):
         self.view_dims = view_dims
 
-    def __call__(self, tensor: torch.Tensor):  
+    def __call__(self, tensor: torch.Tensor):
         return tensor.view(*self.view_dims)
+
 
 class InvertColors(object):
     """
@@ -26,7 +27,7 @@ class InvertColors(object):
         """
         # TODO: Invert the colors of the input image.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        return torchvision.transforms.functional.invert(x)
         # ========================
 
 
@@ -38,7 +39,7 @@ class FlipUpDown(object):
         """
         # TODO: Flip the input image so that up is down.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        return torchvision.transforms.functional.vflip(x)
         # ========================
 
 

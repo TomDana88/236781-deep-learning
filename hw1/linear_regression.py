@@ -7,6 +7,7 @@ from sklearn.utils import check_array
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.utils.validation import check_X_y, check_is_fitted
+from sklearn.model_selection import GridSearchCV
 
 
 class LinearRegressor(BaseEstimator, RegressorMixin):
@@ -32,7 +33,7 @@ class LinearRegressor(BaseEstimator, RegressorMixin):
 
         y_pred = None
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        y_pred = X @ self.weights_
         # ========================
 
         return y_pred
@@ -51,7 +52,9 @@ class LinearRegressor(BaseEstimator, RegressorMixin):
 
         w_opt = None
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        reg_term = self.reg_lambda * X.shape[0] * np.eye(X.shape[1])
+        reg_term[0, 0] = 0
+        w_opt = np.linalg.pinv(X.T @ X + reg_term) @ X.T @ y
         # ========================
 
         self.weights_ = w_opt
@@ -77,7 +80,9 @@ def fit_predict_dataframe(
     """
     # TODO: Implement according to the docstring description.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    if feature_names is None:
+        feature_names = df.columns.drop(target_name)
+    y_pred = model.fit_predict(df[feature_names], df[target_name])
     # ========================
     return y_pred
 
@@ -100,7 +105,7 @@ class BiasTrickTransformer(BaseEstimator, TransformerMixin):
 
         xb = None
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        xb = np.hstack((np.ones((X.shape[0], 1)), X))
         # ========================
 
         return xb
@@ -117,7 +122,6 @@ class BostonFeaturesTransformer(BaseEstimator, TransformerMixin):
         # TODO: Your custom initialization, if needed
         # Add any hyperparameters you need and save them as above
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
         # ========================
 
     def fit(self, X, y=None):
@@ -139,7 +143,13 @@ class BostonFeaturesTransformer(BaseEstimator, TransformerMixin):
 
         X_transformed = None
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        # remove 'CHAS' column
+        X_transformed = np.delete(X, 3, axis=1)
+        # apply log to 'CRIM' and 'LSTAT' columns ('LSTAT' index moved to 11 after removing 'CHAS' column)
+        X_transformed[:, [0, 11]] = np.log(X_transformed[:, [0, 11]])
+        # add polynomial features
+        X_transformed = PolynomialFeatures(
+            self.degree).fit_transform(X_transformed)
         # ========================
 
         return X_transformed
@@ -163,7 +173,10 @@ def top_correlated_features(df: DataFrame, target_feature, n=5):
     # TODO: Calculate correlations with target and sort features by it
 
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    corrs = df.drop(columns=target_feature).corrwith(
+        df[target_feature]).sort_values(key=abs, ascending=False)
+    top_n_features = corrs[:n].index
+    top_n_corr = corrs[:n].values
     # ========================
 
     return top_n_features, top_n_corr
@@ -179,7 +192,7 @@ def mse_score(y: np.ndarray, y_pred: np.ndarray):
 
     # TODO: Implement MSE using numpy.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    mse = np.mean((y - y_pred) ** 2)
     # ========================
     return mse
 
@@ -194,7 +207,7 @@ def r2_score(y: np.ndarray, y_pred: np.ndarray):
 
     # TODO: Implement R^2 using numpy.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    r2 = 1 - np.sum((y - y_pred) ** 2) / np.sum((y - np.mean(y)) ** 2)
     # ========================
     return r2
 
@@ -227,7 +240,13 @@ def cv_best_hyperparams(
     #  - You can use MSE or R^2 as a score.
 
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    # param_grid = model.get_params()
+    grid = GridSearchCV(estimator=model,
+                        param_grid={'linearregressor__reg_lambda': lambda_range,
+                                    'bostonfeaturestransformer__degree': degree_range},
+                        cv=k_folds,
+                        scoring='r2').fit(X, y)
+    best_params = grid.best_params_
     # ========================
 
     return best_params
