@@ -41,8 +41,8 @@ Note that we're using the validation error as a proxy for the generalization err
 """
 
 part1_q2 = r"""
-**Your answer:**
-
+**Your answer:** 
+Not really. For choosing a hyperparameter, we usually divide the training set into a train and validation sets, and choose the hyperparameter based on that (possibly using K-fold cross-validation). We don't train / test hyperparametrs on the test set, but rahter keep the test-set to evaluate the out-of-sample error of the model.
 """
 
 # ==============
@@ -50,14 +50,19 @@ part1_q2 = r"""
 
 part2_q1 = r"""
 **Your answer:**
+The margin $\Delta$ specifies the "distance" that incorrect predictions should be from the correct class score, before they are penalized. However we don't measure Euclidean distance, but rather an abstrct distance in the feature space. Therefore the model can simply scale the weights and bias, so it would give larger or smaller scores as it wishes. Therefore the value of $\Delta$ is not meaningful by itself, but only in relation to the how big are the weights and the biases. What's important is comparing differences between scores.  
 """
 
 part2_q2 = r"""
 **Your answer:**
+It seems the model is learning edges and strokes. This is because those are the most distinctive features to classify between digits. However, when two images of digits (like 2 and 6) have similar baseline features, that look the same, and they only differ in a way that is not captured by the model (like rotation, or slanting, or very small edges and twirls), the model will fail to classify correctly.
 """
 
 part2_q3 = r"""
 **Your answer:**
+The learning rate seems a bit high, since the loss graph decreases sharply. However, it is not too bad, because it then converges, and it doesn't oscillate. A lower learning rate would converge slower, but since we don't see oscillations in our graph, it probably will not converge to a lower loss / higher accuracy.  The graph in that case would be a slower descent into the minimum. IF on the other hand, we took a much higher learning rate, then the loss graph would oscillate, and the loss might not converge. 
+
+Based on the graph of the training and validation set, it seems that the model has only slightly overfitted the train set, because the difference between the train loss and validation loss is small and it doesn't increase too much. We do see slightly that as we train more epochs, the validation loss remains the same, but the training loss slightly decreases, which shows that as we train for more epochs, we are slightly overfitting more and more. 
 """
 
 # ==============

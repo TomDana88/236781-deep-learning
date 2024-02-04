@@ -52,12 +52,21 @@ class SVMHingeLoss(ClassifierLoss):
 
         loss = None
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        N = x_scores.shape[0]
+        gt_scores = x_scores[torch.arange(N), y] # (N,1)
+        M = self.delta + (x_scores - gt_scores[:, None]) # (N,C)
+        # zero values of correct class
+        M[torch.arange(N), y] = 0
+        # clamp to zero
+        M = torch.max(M, torch.zeros_like(M))
+        loss = (M.sum() / N).unsqueeze(0) # (1,)
         # ========================
 
         # TODO: Save what you need for gradient calculation in self.grad_ctx
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        self.grad_ctx['x'] = x # (N,D)
+        self.grad_ctx['y'] = y  # (N,)
+        self.grad_ctx['M'] = M # (N,C)
         # ========================
 
         return loss
@@ -75,7 +84,15 @@ class SVMHingeLoss(ClassifierLoss):
 
         grad = None
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        x = self.grad_ctx['x'] # (N,D)
+        y = self.grad_ctx['y'] # (N,)
+        M = self.grad_ctx['M'] # (N,C)
+        N = x.shape[0]
+
+        G = torch.zeros_like(M) # (N,C)
+        G[M > 0] = 1 
+        G[torch.arange(N), y] = -G.sum(dim=1)
+        grad = (x.t() @ G) / N # (D,C)
         # ========================
 
         return grad
