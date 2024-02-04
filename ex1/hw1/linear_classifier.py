@@ -20,10 +20,8 @@ class LinearClassifier(object):
         # TODO:
         #  Create weights tensor of appropriate dimensions
         #  Initialize it from a normal dist with zero mean and the given std.
-
-        self.weights = None
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        self.weights = torch.normal(0, weight_std, (n_features, n_classes))
         # ========================
 
     def predict(self, x: Tensor):
@@ -45,7 +43,8 @@ class LinearClassifier(object):
 
         y_pred, class_scores = None, None
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        class_scores = torch.mm(x,self.weights)
+        y_pred = torch.argmax(class_scores, dim=1)
         # ========================
 
         return y_pred, class_scores
@@ -66,7 +65,9 @@ class LinearClassifier(object):
 
         acc = None
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        num_samples = y.shape[0]
+        num_correct = torch.sum(y == y_pred)
+        acc = num_correct / num_samples
         # ========================
 
         return acc * 100
