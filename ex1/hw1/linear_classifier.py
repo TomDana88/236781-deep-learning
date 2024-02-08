@@ -5,11 +5,14 @@ from torch.utils.data import DataLoader
 
 from .losses import ClassifierLoss
 
+
 def to_scalar(obj):
     if isinstance(obj, torch.Tensor):
         return obj.item()
     else:
         return float(obj)
+
+
 class LinearClassifier(object):
     def __init__(self, n_features, n_classes, weight_std=0.001):
         """
@@ -25,7 +28,8 @@ class LinearClassifier(object):
         #  Create weights tensor of appropriate dimensions
         #  Initialize it from a normal dist with zero mean and the given std.
         # ====== YOUR CODE: ======
-        self.weights = torch.normal(0, weight_std, (n_features, n_classes)) # (D,C)
+        self.weights = torch.normal(
+            0, weight_std, (n_features, n_classes))  # (D,C)
         # ========================
 
     def predict(self, x: Tensor):
@@ -47,7 +51,7 @@ class LinearClassifier(object):
 
         y_pred, class_scores = None, None
         # ====== YOUR CODE: ======
-        class_scores = torch.mm(x,self.weights)
+        class_scores = torch.mm(x, self.weights)
         y_pred = torch.argmax(class_scores, dim=1)
         # ========================
 
@@ -107,43 +111,55 @@ class LinearClassifier(object):
             #     using the weight_decay parameter.
 
             # ====== YOUR CODE: ======
-            for _ in range(max_epochs):
-                # evaluate on the entire training set
-                total_correct_train, total_loss_train = 0. , 0.
-                for x_train_batch, y_train_batch in dl_train:
-                    y_pred_train, class_scores_train = self.predict(x_train_batch)
-                    loss_train = to_scalar(loss_fn.loss(x_train_batch, y_train_batch, class_scores_train, y_pred_train))
-                    loss_train += to_scalar(weight_decay * torch.sum(self.weights ** 2))
-                    total_loss_train += loss_train
-                    total_correct_train += torch.sum(y_train_batch == y_pred_train)
-                    # update the weights
-                    grad = loss_fn.grad()
-                    self.weights -= learn_rate * grad
-                # compute average loss and accuracy on training set after training epoch
-                average_loss_train = to_scalar(total_loss_train / len(dl_train))
-                accuracy_train = to_scalar(total_correct_train / len(dl_train.dataset))
-                train_res.accuracy.append(accuracy_train); train_res.loss.append(average_loss_train)
+            # evaluate on the entire training set
+            total_correct_train, total_loss_train = 0., 0.
+            for x_train_batch, y_train_batch in dl_train:
+                y_pred_train, class_scores_train = self.predict(
+                    x_train_batch)
+                loss_train = to_scalar(loss_fn.loss(
+                    x_train_batch, y_train_batch, class_scores_train, y_pred_train))
+                loss_train += to_scalar(weight_decay *
+                                        torch.sum(self.weights ** 2))
+                total_loss_train += loss_train
+                total_correct_train += torch.sum(
+                    y_train_batch == y_pred_train)
+                # update the weights
+                grad = loss_fn.grad()
+                self.weights -= learn_rate * grad
+            # compute average loss and accuracy on training set after training epoch
+            average_loss_train = to_scalar(
+                total_loss_train / len(dl_train))
+            accuracy_train = to_scalar(
+                total_correct_train / len(dl_train.dataset))
+            train_res.accuracy.append(accuracy_train)
+            train_res.loss.append(average_loss_train)
 
-                # evaluate on the validation set
-                total_correct_valid, total_loss_valid = 0. , 0.
-                for x_valid_batch, y_valid_batch in dl_valid:
-                    y_pred_valid, class_scores_valid = self.predict(x_valid_batch)
-                    loss_valid = to_scalar(loss_fn.loss(x_valid_batch, y_valid_batch, class_scores_valid, y_pred_valid))
-                    loss_valid += to_scalar(weight_decay * torch.sum(self.weights ** 2))
-                    total_loss_valid += loss_valid
-                    total_correct_valid += torch.sum(y_valid_batch == y_pred_valid)
-                    # No need to update the weights, because in validation
-                # compute average loss and accuracy on validation set(!) after training epoch
-                average_loss_valid = to_scalar(total_loss_valid / len(dl_valid))
-                accuracy_valid = to_scalar(total_correct_valid / len(dl_valid.dataset))
-                valid_res.accuracy.append(accuracy_valid); valid_res.loss.append(average_loss_valid)
+            # evaluate on the validation set
+            total_correct_valid, total_loss_valid = 0., 0.
+            for x_valid_batch, y_valid_batch in dl_valid:
+                y_pred_valid, class_scores_valid = self.predict(
+                    x_valid_batch)
+                loss_valid = to_scalar(loss_fn.loss(
+                    x_valid_batch, y_valid_batch, class_scores_valid, y_pred_valid))
+                loss_valid += to_scalar(weight_decay *
+                                        torch.sum(self.weights ** 2))
+                total_loss_valid += loss_valid
+                total_correct_valid += torch.sum(
+                    y_valid_batch == y_pred_valid)
+                # No need to update the weights, because in validation
+            # compute average loss and accuracy on validation set(!) after training epoch
+            average_loss_valid = to_scalar(
+                total_loss_valid / len(dl_valid))
+            accuracy_valid = to_scalar(
+                total_correct_valid / len(dl_valid.dataset))
+            valid_res.accuracy.append(accuracy_valid)
+            valid_res.loss.append(average_loss_valid)
             # ========================
             print(".", end="")
 
         print("")
         return train_res, valid_res
 
-    
     def weights_as_images(self, img_shape, has_bias=True):
         """
         Create tensor images from the weights, for visualization.
