@@ -1,0 +1,34 @@
+name: torch
+channels:
+  - pytorch
+  - conda-forge
+  - nvidia
+dependencies:
+  - ipython
+  - jupyter
+  - jupyterlab
+  - matplotlib
+  - nodejs>=12.0
+  - numpy
+  - pandas
+  - pip
+  - pytest
+  - pytest-xdist
+  - python=3.10
+  - libcufile=1.4.0.31
+  - seaborn
+  - opencv
+  - scikit-learn
+  - scipy
+  - tqdm
+  - pip:
+    - nbmerge
+    
+  - pytorch
+  - pytorch-cuda=11.8
+  - cudatoolkit
+  - torchvision
+  - torchtext
+
+platforms:
+  - linux-64
