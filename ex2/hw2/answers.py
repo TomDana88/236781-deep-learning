@@ -39,7 +39,9 @@ def part2_overfit_hp():
     wstd, lr, reg = 0, 0, 0
     # TODO: Tweak the hyperparameters until you overfit the small dataset.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    wstd = 2
+    lr = 0.01
+    reg = 0.01
     # ========================
     return dict(wstd=wstd, lr=lr, reg=reg)
 
@@ -56,7 +58,11 @@ def part2_optim_hp():
     # TODO: Tweak the hyperparameters to get the best results you can.
     # You may want to use different learning rates for each optimizer.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    wstd = 0.01
+    lr_vanilla = 0.03
+    lr_momentum = 3e-3
+    lr_rmsprop = 1.6e-4
+    reg = 0.01
     # ========================
     return dict(
         wstd=wstd,
@@ -75,7 +81,8 @@ def part2_dropout_hp():
     # TODO: Tweak the hyperparameters to get the model to overfit without
     # dropout.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    wstd = 0.1
+    lr = 0.003
     # ========================
     return dict(wstd=wstd, lr=lr)
 
@@ -83,14 +90,16 @@ def part2_dropout_hp():
 part2_q1 = r"""
 **Your answer:**
 
+1. The graph of no-dropout vs dropout does match what I expected to see. The no-dropout graph shows a clear overfitting, 
+    with training accuracy close to 100% and poor test accuracy (around 26% at the peak).
+The dropout graph shows a better generalization (test accuracy), and the train accuracy is closer to the test 
+    accuracy (though in the low-dropout also much higher).
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+2. The low-dropout setting still shows signs of overfitting, because the trainning accuracy is still much higher than the
+    test accuracy (~70% vs. ~30%), though the gap is smaller than in the no-dropout case.
+In the high-dropout setting, the trainning accuracy is much similar to the test accuracy, which means there is no overfitting,
+    but still the test accuracy is lower (but very close) to the low-dropout setting. This might be due to the fact that
+    the dropout hyperparameter is too high, and the model is not learning enough.
 """
 
 part2_q2 = r"""

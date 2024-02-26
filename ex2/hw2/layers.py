@@ -282,7 +282,6 @@ class Linear(Layer):
 class CrossEntropyLoss(Layer):
     def __init__(self):
         super().__init__()
-        
 
     def forward(self, x, y):
         """
@@ -312,10 +311,10 @@ class CrossEntropyLoss(Layer):
         # TODO: Compute the cross entropy loss using the last formula from the
         #  notebook (i.e. directly using the class scores).
         # ====== YOUR CODE: ======
-        # compute the indexed x 
-        indexed_x = torch.gather(x, 1, y.view(-1, 1)).squeeze(1) # (N,)
+        # compute the indexed x
+        indexed_x = torch.gather(x, 1, y.view(-1, 1)).squeeze(1)  # (N,)
         # compute the log sum exp
-        log_sum_exp_x = torch.logsumexp(x, dim=1) # (N, 1)
+        log_sum_exp_x = torch.logsumexp(x, dim=1)  # (N, 1)
         # compute loss
         loss = (-indexed_x + log_sum_exp_x).mean()
         # ========================
@@ -337,9 +336,9 @@ class CrossEntropyLoss(Layer):
         # TODO: Calculate the gradient w.r.t. the input x.
         # ====== YOUR CODE: ======
         # compute the softmax
-        dx = torch.softmax(x, dim=1) # (N, D)
-        dx[range(N), y] -= 1 # (N, D)
-        dx *= dout / N # (N, D)
+        dx = torch.softmax(x, dim=1)  # (N, D)
+        dx[range(N), y] -= 1  # (N, D)
+        dx *= dout / N  # (N, D)
         # ========================
 
         return dx
@@ -363,7 +362,12 @@ class Dropout(Layer):
         #  Notice that contrary to previous layers, this layer behaves
         #  differently a according to the current training_mode (train/test).
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        if self.training_mode:
+            mask = torch.rand(x.shape) > self.p
+            out = x * mask
+            self.grad_cache["mask"] = mask
+        else:
+            out = x
         # ========================
 
         return out
@@ -371,7 +375,10 @@ class Dropout(Layer):
     def backward(self, dout):
         # TODO: Implement the dropout backward pass.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        if self.training_mode:
+            dx = dout * self.grad_cache["mask"]
+        else:
+            dx = dout
         # ========================
 
         return dx
@@ -447,6 +454,8 @@ class Sequential(Layer):
         return self.layers[item]
 
 # add a static function that returns activation function by name
+
+
 def get_activation(name):
     if name == "relu":
         return ReLU()
@@ -456,6 +465,8 @@ def get_activation(name):
         return TanH()
     else:
         raise ValueError(f"Unknown activation function: {name}")
+
+
 class MLP(Layer):
     """
     A simple multilayer perceptron based on our custom Layers.
@@ -469,7 +480,6 @@ class MLP(Layer):
     function.
     """
 
-    
     def __init__(
         self,
         in_features,
@@ -495,11 +505,18 @@ class MLP(Layer):
         # ====== YOUR CODE: ======
         self.in_features = in_features
         self.num_classes = num_classes
-        layers += [Linear(in_features, hidden_features[0])] + [get_activation(activation)]
-        for i in range(1, len(hidden_features)):
-            layers += [Linear(hidden_features[i-1], hidden_features[i])] + [get_activation(activation)]
-        layers += [Linear(hidden_features[-1], num_classes)]
+        layers += [Linear(in_features, hidden_features[0])] + \
+            [get_activation(activation)]
 
+        if dropout > 0:
+            layers.append(Dropout(dropout))
+        for i in range(1, len(hidden_features)):
+            layers += [Linear(hidden_features[i-1], hidden_features[i])
+                       ] + [get_activation(activation)]
+
+            if dropout > 0:
+                layers.append(Dropout(dropout))
+        layers += [Linear(hidden_features[-1], num_classes)]
         # ========================
 
         self.sequence = Sequential(*layers)
