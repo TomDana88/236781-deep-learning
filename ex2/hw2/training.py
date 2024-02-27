@@ -85,9 +85,9 @@ class Trainer(abc.ABC):
             # ====== YOUR CODE: ======
             train_result = self.train_epoch(dl_train, verbose=verbose, **kw)
             test_result = self.test_epoch(dl_test, verbose=verbose, **kw)
-            train_loss.extend(train_result.losses)
+            train_loss.append(sum(train_result.losses) / len(train_result.losses))
             train_acc.append(train_result.accuracy)
-            test_loss.extend(test_result.losses)
+            test_loss.append(sum(test_result.losses) / len(test_result.losses))
             test_acc.append(test_result.accuracy)
             actual_num_epochs += 1
             # ========================
@@ -268,7 +268,12 @@ class ClassifierTrainer(Trainer):
         #  - Update parameters
         #  - Classify and calculate number of correct predictions
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        logits = self.model(X)
+        batch_loss = self.loss_fn(logits, y)
+        self.optimizer.zero_grad()
+        batch_loss.backward()
+        self.optimizer.step()
+        num_correct = (logits.argmax(dim=1) == y).sum().item()
         # ========================
 
         return BatchResult(batch_loss, num_correct)
@@ -288,7 +293,9 @@ class ClassifierTrainer(Trainer):
             #  - Forward pass
             #  - Calculate number of correct predictions
             # ====== YOUR CODE: ======
-            raise NotImplementedError()
+            logits = self.model(X)
+            num_correct = (logits.argmax(dim=1) == y).sum().item()
+            batch_loss = self.loss_fn(logits, y)
             # ========================
 
         return BatchResult(batch_loss, num_correct)
