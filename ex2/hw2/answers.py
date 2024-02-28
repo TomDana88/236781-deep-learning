@@ -260,15 +260,33 @@ def part4_optim_hp():
 
 part4_q1 = r"""
 **Your answer:**
+1. The formula for the number of parameters for a convolutional layer is $(C_{in} \cdot K^2 + 1) \cdot C_{out}$,
+    Where $C_{in}$ is the number of input channels, $C_{out}$ is the number of output channels, 
+    $K$ is the size of the kernel and the plus 1 comes from the bias term.
+    
+    For the regular residual block, we have 2 layers, each with 3x3 kernel and 256 input and output channels.
+    Therefore, the number of parameters is $(256 \cdot 3^2 + 1) \cdot 256 \cdot 2 = 1180160$.
 
+    For the bottleneck residual block, we have 3 layers -
+    the first with 1x1 kernel, 256 input and 64 output channels,
+    the second with 3x3 kernel and 64 input and output channels,
+    and the third with 1x1 kernel, 64 input and 256 output channels.
+    Therefore, the number of parameters is
+    $(256 \cdot 1^2 + 1) \cdot 64 + (64 \cdot 3^2 + 1) \cdot 64 + (64 \cdot 1^2 + 1) \cdot 256 = 70016$.
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+    We see that the bottleneck block has significantly less parameters, and so it is more efficient.
 
+2. The number of floating point operations is proportional to the number of parameters, and so the bottleneck
+    block will also be more efficient in terms of FLOPs.
+
+3. Spatially: The regular block have 2 layers of 3x3 kernel, meaning receptive field of 5x5, while the bottleneck block 
+    has 3 layers of 1x1, 3x3, 1x1 kernel, meaning receptive field of 3x3. This means that the regular block can
+    capture more complex features.
+
+    Across feature maps: The regular block combines information across all 256 features maps directly in both 3x3 
+    convolutional layers. On the other hand, the bottleneck Block Combines information primarily through the middle
+    3x3 convolution, which operates on only 64 channels. However, some limited information exchange still occurs
+    during the 1x1 convolutions due to their linear transformations.
 """
 
 # ==============
