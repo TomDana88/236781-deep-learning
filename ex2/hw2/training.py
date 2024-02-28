@@ -273,10 +273,13 @@ class ClassifierTrainer(Trainer):
         self.optimizer.zero_grad()
         batch_loss.backward()
         self.optimizer.step()
-        num_correct = (logits.argmax(dim=1) == y).sum().item()
+        with torch.no_grad():
+            # call model.classify to get the number of correct predictions
+            model_pred = self.model.classify(X) # (N,) integer tensor 
+            num_correct = (model_pred == y).sum().detach().cpu().item()
         # ========================
 
-        return BatchResult(batch_loss, num_correct)
+        return BatchResult(batch_loss.detach().cpu(), num_correct)
 
     def test_batch(self, batch) -> BatchResult:
         X, y = batch
@@ -294,11 +297,13 @@ class ClassifierTrainer(Trainer):
             #  - Calculate number of correct predictions
             # ====== YOUR CODE: ======
             logits = self.model(X)
-            num_correct = (logits.argmax(dim=1) == y).sum().item()
             batch_loss = self.loss_fn(logits, y)
+            # call model.classify to get the number of correct predictions
+            model_pred = self.model.classify(X) # (N,) integer tensor 
+            num_correct = (model_pred == y).sum().detach().cpu().item()
             # ========================
 
-        return BatchResult(batch_loss, num_correct)
+        return BatchResult(batch_loss.detach().cpu().item(), num_correct)
 
 
 class LayerTrainer(Trainer):

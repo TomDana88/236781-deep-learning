@@ -33,6 +33,7 @@ def mlp_experiment(
     dl_test: DataLoader,
     n_epochs: int,
 ):
+
     # TODO:
     #  - Create a BinaryClassifier model.
     #  - Train using our ClassifierTrainer for n_epochs, while validating on the
@@ -45,7 +46,27 @@ def mlp_experiment(
     #  Note: use print_every=0, verbose=False, plot=False where relevant to prevent
     #  output from this function.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    #  Create a BinaryClassifier model.
+    model = BinaryClassifier(
+        model=MLP(
+            in_dim=dl_train.dataset[0][0].numel(),
+            dims=[*[width,] * depth, 2],
+            nonlins=[*['relu',] * depth, 'none']))
+    #  Train using our ClassifierTrainer for n_epochs, while validating on the validation set.
+    loss_fn = torch.nn.CrossEntropyLoss()
+    # use the adam optimizer, with chosen hyperparameters
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+    trainer = ClassifierTrainer(model, loss_fn, optimizer)
+    # call trainer.fit, which returns FitResult, a namedTuple of num_epochs: int , train_loss: List[float], train_acc: List[float]
+    # test_loss: List[float] , test_acc: List[float]
+    fit_result = trainer.fit(dl_train, dl_valid, num_epochs=n_epochs, print_every=0, early_stopping=2)
+    valid_acc = fit_result.test_acc[-1]
+    # Use the validation set for threshold selection, and set optimal threshold
+    thresh = select_roc_thresh(model, *dl_valid.dataset.tensors, plot=False)
+    model.threshold = thresh
+    # evaluate one epoch on the test set, by calling trainer.test_epoch, which returns EpochResult, a namedTuple with  losses: List[float] , accuracy: float
+    test_result = trainer.test_epoch(dl_test, verbose=False)
+    test_acc = test_result.accuracy
     # ========================
     return model, thresh, valid_acc, test_acc
 
