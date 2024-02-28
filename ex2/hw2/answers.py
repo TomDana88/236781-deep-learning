@@ -190,54 +190,48 @@ def part3_optim_hp():
 
 part3_q1 = r"""
 **Your answer:**
+1. Optimization error is the difference between the loss of the model and the best possible loss for a function from our hypothesis loss. Looking at the decision boundary plot, it doesn't seem we could've trained a signinifcantly better function from this hypotehsis class, so I don't think this error is high.
 
+2. Generealization error is the difference between the error on the training and the error on the test. Looking the at the test loss and accuracy, there's some generealization error, and I'd definitely try to do early stopping, in order to prevent overfitting.
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+3. Approximation error is the error due to the difference between the best possible function in the hypothesis space, and the true function. It's indicative of how expressive our hypothesis space is. In our case, looking at the decision boundary, we see points that cross the boundary, and so inevitably we will have some approximation error. Knowing that this is caused by noise in our data, and not internal features, I'd be heistatnt to try to improve on this (i.e. I don't think this error is high), since reducing this error means overfitting the noise. 
 """
 
 part3_q2 = r"""
 **Your answer:**
+When comparing the FPR and NPR across the test set and the validation set, we notice significant differences On the test set:
+FNR: 6.92%, FPR: 5.46%
+And on the validation set:
+FNR: 20.68%, FPR: 2.53%
 
+This difference disappears when we generate our dataset by shuffling. Therefore, my explanation for this difference is: When we don't shuffle our data, our test and validation set represent different distributions. Specifically in our case, the test set will contain more samples from moon1, and the validation test will contain more samples from moon2. This causes class imbalance, which means our model will be biased towards the class that is more represented in the test set. Seeing that this difference disapperas When we shuffle our data is a good indication, is a good indication that this explanation is correct.
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+Note - the shuffling of the dataloader doesn't change, because that is shuffling within the already biased data.
 """
 
 part3_q3 = r"""
 **Your answer:**
+Currently we choose a threshold that maximizes TPR-FPR. This tries to find a balance optimizing both sensitivity and specificity. In the scenarios presented, we wish to optimize for different metric. 
 
+A) In this case, the cost of False Negative is low, because those cases later can be solved easily - symptomps do devlop, are evident, and a cure is cheap. Therefore we will choose a higher threshold, that will reduce the number of False Positives, and increase the number of False Negatives.
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+B) Here, the cost of a FN is much higher. Therefore we will choose a lower threshold. This will reduce the number of False Negatives, which is what we want to optimize for.
 
+In both cases, The specific optimal threshold can be derived for a specific cost function, probably by differentiating some function.
 """
 
 
 part3_q4 = r"""
 **Your answer:**
+1. The most striking difference is the shape of the line. A width of 2 allong only for roughy linear boundary decissions boundary,  while a higher width allows more curved boundaries. As expected, this allows the model to fit the training data better, since it comes from a moon distribution, and since the test distribution is also "moon-like" we get that the test accuracy is also higher for higher width. 
 
+2. This difference is less significant than the width. Usually, more depth allows for more complicated feature extraction. However, since
+the data is relatively simple, the model doesn't benefit much from the extra depth. This is why we see that test accuracy is not that different when increasing the depth.
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+3. In our case, the results are failry similar. (depth=4,width=8) has 87.6% valid_acc, and 85.8% test_acc, whereas (depth=1, width=32) has 87.4% valid_acc, and 87% test_acc. This shows us that this model doesn't benefit too greatly from extra depth, and is able to generate a sufficient hypothesis function with a single layer.
+
+4. Explain the effect of threshold selection on the validation set: did it improve the results on the test set? why?
+In our case, when using threshold=0.5, we get 87.6% test accuracy (with loss of 0.267), and when using optimal threshold of approx 0.200, we get 89.1% test accuracy, with (Avg. loss of 0.266). This results makes sense, since the threshold we choose is the one that is guaranteed to separate between the two classes the best, and so it makes sense that it will improve the results on the test set, i.e. that will indeed generalize better.
 
 """
 # ==============
