@@ -62,7 +62,8 @@ class MLP(nn.Module):
             layers.append(nn.Linear(layer_in_dim, dim))
             #  - Either instantiate the activations based on their name or use the provided instances.
             if isinstance(activ, str):
-                layers.append(ACTIVATIONS[activ](**ACTIVATION_DEFAULT_KWARGS[activ]))
+                layers.append(ACTIVATIONS[activ](
+                    **ACTIVATION_DEFAULT_KWARGS[activ]))
             else:
                 layers.append(activ)
             layer_in_dim = dim

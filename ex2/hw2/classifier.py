@@ -61,7 +61,6 @@ class Classifier(nn.Module, ABC):
         # ====== YOUR CODE: ======
         return torch.softmax(z, dim=1)
         # ========================
-        
 
     def classify(self, x: Tensor) -> Tensor:
         """
@@ -97,7 +96,7 @@ class ArgMaxClassifier(Classifier):
         #  Classify each sample to one of C classes based on the highest score.
         #  Output should be a (N,) integer tensor.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        return torch.argmax(y_proba, dim=1)
         # ========================
 
 
@@ -182,7 +181,8 @@ def plot_decision_boundary_2d(
     # ========================
 
     # Plot the decision boundary as a filled contour
-    ax.contourf(x1_grid.numpy(), x2_grid.numpy(), y_hat.numpy(), alpha=0.3, cmap=cmap)
+    ax.contourf(x1_grid.numpy(), x2_grid.numpy(),
+                y_hat.numpy(), alpha=0.3, cmap=cmap)
     ax.set_xlabel("x1")
     ax.set_ylabel("x2")
 
