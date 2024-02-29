@@ -356,43 +356,30 @@ An equation: $e^{i\pi} -1 = 0$
 
 part6_q1 = r"""
 **Your answer:**
+1. The model did relatively bad. For the dolphins image, all three dolphins were misclassified, two dolphins were classified as "person", and 1 dolphin was classified as a surfboard. For the 1 cat and 3 dogs image, only 1 dog was classified correctly, 1 dog was bounded with the cat, and one dog was misclassified as a cat. It is noteworthy that it did detect the correct number of objects in both images. 
 
+-------------
+2. Here are several possible reasons why the model failed:  
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+a) As for the misclassification of the dolphins, it might be that the model was never trained on dolphins, and hence couldn't recognize them. A solution to this problem would be to train the model on a larger dataset, that includes dolphins. This doesn't even necessarily requires a full re-train, but possibly can be achieved using fine-tuning of the last layers of the model. 
 
+b) For the misclassification of the dog as a cat, due to object overlap, this is can be caused because of a  lack of such cases in the training data, or that the model is too simple, and possibly couldn't cannot capture such level of difference. Possible solutions are data augmentation, that will increase the model ability to generalize. Another possible solution is to increase the model architecture, which would help the model capture more fine-level details. 
 """
 
 
 part6_q2 = r"""
-**Your answer:**
-
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+**Your answer:** There was no question
 
 """
 
 
 part6_q3 = r"""
-**Your answer:**
+**Your answer:** 
+The model mostly failed to detect the objects
 
+The model misclassified the blurry cat as a person, but it did provide a correct bounding box. This indicates that the parts of the model related to grouping pixels were able to handle the blurriness, however when it came to extracting features specific to classification, those parts did not handle the bluriness. A possible solution would be to train the model on blurrier images using data augmentation. 
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+I've also tested occlusion. I've provided a clear image with only a fork to demonstrate that the model is able to detect a fork, and in that simple image the model succeeded. However in every other case it didn't detect the fork, and misclassified many other things. Even in the last image, where the fork is visible, the model isn't able to detect it. Another interesting case is the textured background. Here, we get an image of only a fork, however the model misclassifies it as a "scissor", probably due to the different, unusual background. An hypothesis is that such a background usually occurs more in cases where scissors are involved than with forks, and that could have tipped the model classification in that direction.
 """
 
 part6_bonus = r"""
