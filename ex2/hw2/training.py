@@ -85,7 +85,8 @@ class Trainer(abc.ABC):
             # ====== YOUR CODE: ======
             train_result = self.train_epoch(dl_train, verbose=verbose, **kw)
             test_result = self.test_epoch(dl_test, verbose=verbose, **kw)
-            train_loss.append(sum(train_result.losses) / len(train_result.losses))
+            train_loss.append(sum(train_result.losses) /
+                              len(train_result.losses))
             train_acc.append(train_result.accuracy)
             test_loss.append(sum(test_result.losses) / len(test_result.losses))
             test_acc.append(test_result.accuracy)
@@ -275,11 +276,11 @@ class ClassifierTrainer(Trainer):
         self.optimizer.step()
         with torch.no_grad():
             # call model.classify to get the number of correct predictions
-            model_pred = self.model.classify(X) # (N,) integer tensor 
+            model_pred = self.model.classify(X)  # (N,) integer tensor
             num_correct = (model_pred == y).sum().detach().cpu().item()
         # ========================
 
-        return BatchResult(batch_loss.detach().cpu(), num_correct)
+        return BatchResult(batch_loss.detach().cpu().item(), num_correct)
 
     def test_batch(self, batch) -> BatchResult:
         X, y = batch
@@ -299,7 +300,7 @@ class ClassifierTrainer(Trainer):
             logits = self.model(X)
             batch_loss = self.loss_fn(logits, y)
             # call model.classify to get the number of correct predictions
-            model_pred = self.model.classify(X) # (N,) integer tensor 
+            model_pred = self.model.classify(X)  # (N,) integer tensor
             num_correct = (model_pred == y).sum().detach().cpu().item()
             # ========================
 

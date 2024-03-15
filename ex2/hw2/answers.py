@@ -90,7 +90,7 @@ def part2_dropout_hp():
 part2_q1 = r"""
 **Your answer:**
 
-1. The graph of no-dropout vs dropout does match what I expected to see. The no-dropout graph shows a clear overfitting, 
+1. The graph of no-dropout vs dropout does match what we expected to see. The no-dropout graph shows a clear overfitting, 
     with training accuracy close to 100% and poor test accuracy (around 26% at the peak).
 The dropout graph shows a better generalization (test accuracy), and the train accuracy is closer to the test 
     accuracy (though in the low-dropout also much higher).
@@ -105,39 +105,93 @@ In the high-dropout setting, the trainning accuracy is much similar to the test 
 part2_q2 = r"""
 **Your answer:**
 
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+Yes, it's possible, because the cross-entropy loss and the accuracy measure different things. The loss is a measure of
+how confident the model is in its predictions, while the accuracy is a measure of how many predictions the model got right.
+During training, the model might make changes that will help it correcly classify example from the test set, which will 
+lead to an increase in test accuracy. However, these changes might also make the model become overconfident in its wrong 
+predictions for other examples, which will lead to an increase in the loss.
 """
 
 part2_q3 = r"""
 **Your answer:**
 
+1. Gradient descent is an optimization algorithm, which tells the model how to learn in each iteraion. i.e. how to 
+    update the weights.
+    Back-propagation is a method for computing the gradient of the loss function with respect to the weights of the model.
+    In other words, gradient descent is the algorithm that uses the gradients computed by back-propagation to update the weights.
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+2. Both GD and SGD are optimization algorithms used train models by minimizing a cost function.
+    GD uses the entire training dataset in each iteration to calculate the gradient, while uses only a single data point
+    or a small mini-batch randomly chosen from the training dataset in each iteration.
+    This means that GD is generally more accurate, and will always converge to a (global or local) minimum, as opposed 
+    to SGD, which is not guaranteed to converge to a minimum because of the noise introduced by the random sampling.
+    However, GD is much slower than SGD, requiring a lot of memory and computational power, and might not be feasible for
+    large datasets.
+
+3. There are few reasons why SGD is used more often in the practice of deep learning (DL):
+    * Scalability: DL often deals with massive datasets that wouldn't fit in memory entirely. Processing the 
+    entire dataset (as GD does) becomes impossible computationally. SGD, by using just a single data point or a 
+    mini-batch, requires significantly less memory, making it feasible to train deep models on large datasets.
+    * Efficiency: SGD iterates through the training data much faster than GD. Because it calculates the gradient for 
+    only one data point. This speed advantage allows for quicker training of complex deep networks, which wouldn't be
+    feasible with GD.
+    * Regularization: The inherent noise introduced by SGD's randomness is acting as a regularizer. Because SGD 
+    calculates the gradient of only one random example each time, it's not following the exact gradient direction like 
+    GD, which can help the model avoid getting stuck in local minima and potentially converge to a better solution.
+
+4.  A. Yes, this approach would produce a gradient equivalent to GD, because the gradient operator is linear, and so
+    the gradient of the sum of the losses is the sum of the gradients of the losses. 
+    Mathematically:
+    $$
+    ∇ L(\theta; X) = ∇ \sum_{i=1}^N L(\theta; x_i) = \sum_{i=1}^{n_1} ∇ L(\theta; x_i) + \cdots + \sum_{i=n_{m-1}+1}^{n_m} ∇ L(\theta; x_i)
+    $$
+    Where $n_i$ is the number of examples in the $i$-th batch, and $m$ is the number of batches.
+    B. We will get an out of memory error because we are storing the gradients of all the batches in memory for the 
+    backword pass, so we're still saving a lot of data for each batch, even though we are not saving the entire dataset.
+
 
 """
 
 part2_q4 = r"""
 **Your answer:**
 
+1. 
+    **Forward mode AD**:
+    In the tutorial we saw that the formula for calculatin the gradient of $v_{j+1}$ is:
+    $$
+    v_{j+1}.grad \leftarrow v_{j+1}.fn.derivative(v_j.val) \cdot v_{j}.grad
+    $$
+    Instead of storing the gradients of all nodes, we can use a single variable that will accumulate all the gradients,
+    and a single variable that will store the previous node.
+    In each iteration we'll use the following formula:
+    $$
+    \text{acc\_grad} \leftarrow \text{acc\_grad} \cdot f_i.derivative(\text{prev\_val})
+    $$
+    $$
+    \text{prev\_val} \leftarrow f_i(\text{prev\_val})
+    $$
+    Where $\text{acc\_grad}$ is initialized to $1$ and $\text{prev\_cal}$ is initialized to $x$.\
+    Memory complexity is $\mathcal{O}(1).$
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+    **Backward mode AD**:
+    Same as before, we'll use two variables and the following formulas:
+    $$
+    \text{acc\_grad} \leftarrow \text{acc\_grad} \cdot f_{i-1}.derivative(\text{prev\_val})
+    $$
+    $$
+    \text{prev\_val} \leftarrow f_i(\text{prev\_val})
+    $$
+    Where $\text{acc\_grad}$ is initialized to $1$ and $\text{prev\_val}$ is initialized to $v_n.val$. \
+    Memory complexity is $\mathcal{O}(1)$. \
+    Note that this time we're iterating the graph in reverse order.
+
+2. These techniques are not directly generalizable to arbitrary computational graphs because they rely on the assumption
+    that the given function is constructed of sequential compositions of functions.
+    However, it can be applied to specific sub-graphs within a larger network if they exhibit this sequential structure.
+
+3. The back-propagation algorithm can consume a lot of memory when working on deep networks, because it's memory complexity
+    is linear with the depth of the network. By using techniques that reduce the memory consumption, we'll get a significant
+    reduction in memory usage in deep networks.
 
 """
 
@@ -298,53 +352,65 @@ part4_q1 = r"""
 part5_q1 = r"""
 **Your answer:**
 
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+1. We can see that the greater the depth, the better the accuracy for both `K=[32]` and `K=[64]`, although for `K=[32]`
+   there is no big difference between `L=8` and `L=16` as they both have similar accuracy.
+   The best results are achieved with `L=16`, which is the highest depth we tested. This is because the higher the depth,
+   the more complex features the network can learn, and so it can better capture the complexity of the data.
+2. We did encounter a situation where the network wasn't trainable with `L=16`, but we managed to resolve it by using
+   the LeakyReLU activation function instead of regular ReLU. The problem we were facing was probably vanishing gradients,
+   and the LeakyReLU activation function allows for a non-zero gradient, which helped solve it.
+   This could have also been resolved by using skipping connections, like in ResNet.
+   For `K=[64]` and `L=16` we can see a big drop in the test accuracy for one epoch, which also might caused by vanishing
+   gradients, but the network overcame it and continued the training.
 """
 
 part5_q2 = r"""
 **Your answer:**
 
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+For `K=[32]` and `K=[64]`, abviously the results are very similar to the results of experiment 1.1 (with corresponding 
+`L` values), since we used the same hyper-parameters. For the case of `K=[128]`, we see that as we increased `L`, we got better
+results. The difference between `L8_K128` and `L8_K64` is not very significant, which indicates that increasing the number
+of filters (`K`) drastically without increasing the depth (`L`) doesn't help much. We can also see that insight by 
+comparing `L16_K64` from experiment 1.1 and `L8_K128` from experiment 1.2, where the former achieved better results.
 """
 
 part5_q3 = r"""
 **Your answer:**
 
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+As before, we can see that for fixed `K` value, increasing `L` improves the results.
+Compared to the results of the previous experiments with the same `L` values, we can see that the results are much better,
+which indicates that adding another convolutional block to the network improves the results significantly.
 """
 
 part5_q4 = r"""
 **Your answer:**
 
+exp1.1:
+* `K=[32]` fixed with varying `L=2,4,8,16`
+* `K=[64]` fixed with varying `L=2,4,8,16`
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+exp1.3:
+* `K=[64, 128]` fixed with varying `L=2,3,4`.
 
+exp1.4:
+* `K=[32]` fixed with varying `L=8,16,32`.
+* K=[64, 128, 256] fixed with varying L=2,4,8.
+
+The best results in experiment 4 (and in total) were achieved with `L8_K64-128-256`. This tells us that
+increasing the number of convolutional blocks in the network (adding values to `K`) is more beneficial than
+increasing the number of filters filters in each layer (value of items in `K`) or increasing the depth of each
+block (value of `L`).
+That being said, we did get good results also with `L32_K32`, which are similar (but more stable) to the results
+of `L16_K64` from exp1.1 and `L4_K64-128` from exp1.3. This tells us that increasing `L` or values in `K` can
+also improve the results to some extent.
+Another thing we see from the results is that the results of `L2_K64-128` and `L4_K64-128` from exp1.3 are better 
+than the results of `L2_K64-128-256` and `L4_K64-128-256` from exp1.4 respectively, which tells us that adding 
+more blocks without increasing the depth of each block can actually hurt the results.
+However, we ran exp1.4 with hyper-parameter `pool_every=5`, compare to `pool_every=3` in exp1.3. We did get 
+better results with `pool_every=3` in exp1.4 for `L=2,4` but got an error for `L=8`, so we can't tell of the
+results of exp1.3 were better because of the hyper-parameter or because of the added block.
+This also applies to the first part of exp1.4, which we ran with `pool_every=8` because of error occured with
+`L32_K32`.
 """
 
 

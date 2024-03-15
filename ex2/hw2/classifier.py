@@ -179,7 +179,8 @@ def plot_decision_boundary_2d(
     # ====== YOUR CODE: ======
     x1_min, x1_max = x[:, 0].min() - 1, x[:, 0].max() + 1
     x2_min, x2_max = x[:, 1].min() - 1, x[:, 1].max() + 1
-    x1_grid, x2_grid = torch.meshgrid(torch.arange(x1_min, x1_max, dx), torch.arange(x2_min, x2_max, dx))
+    x1_grid, x2_grid = torch.meshgrid(torch.arange(
+        x1_min, x1_max, dx), torch.arange(x2_min, x2_max, dx))
     x_grid = torch.stack([x1_grid, x2_grid], dim=-1)
     y_hat = classifier.classify(x_grid.view(-1, 2)).view(x1_grid.shape)
     # ========================

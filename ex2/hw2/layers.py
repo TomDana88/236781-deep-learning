@@ -249,10 +249,10 @@ class Linear(Layer):
 
         # TODO: Compute the affine transform
         # ====== YOUR CODE: ======
-        out = (x.view(x.size(0),-1)) @ self.w.T + self.b
+        out = (x.view(x.size(0), -1)) @ self.w.T + self.b
         # ========================
 
-        self.grad_cache["x"] = x.view(x.size(0),-1)
+        self.grad_cache["x"] = x.view(x.size(0), -1)
         return out
 
     def backward(self, dout):

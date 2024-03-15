@@ -59,7 +59,8 @@ def mlp_experiment(
     trainer = ClassifierTrainer(model, loss_fn, optimizer)
     # call trainer.fit, which returns FitResult, a namedTuple of num_epochs: int , train_loss: List[float], train_acc: List[float]
     # test_loss: List[float] , test_acc: List[float]
-    fit_result = trainer.fit(dl_train, dl_valid, num_epochs=n_epochs, print_every=0, early_stopping=2)
+    fit_result = trainer.fit(
+        dl_train, dl_valid, num_epochs=n_epochs, print_every=0, early_stopping=2)
     valid_acc = fit_result.test_acc[-1]
     # Use the validation set for threshold selection, and set optimal threshold
     thresh = select_roc_thresh(model, *dl_valid.dataset.tensors, plot=False)
@@ -92,6 +93,15 @@ def cnn_experiment(
     hidden_dims=[1024],
     model_type="cnn",
     # You can add extra configuration for your experiments here
+    conv_params=dict(kernel_size=3, stride=1, padding=1, bias=False),
+    activation_type="relu",
+    activation_params={},
+    pooling_type="max",
+    pooling_params=dict(kernel_size=2),
+    dropout=0.1,
+    batchnorm=True,
+    bottleneck=False,
+    print_every=0,
     **kw,
 ):
     """
@@ -113,6 +123,9 @@ def cnn_experiment(
 
     if not device:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    else:
+        # needed for serialization of the device (if given).
+        cfg['device'] = repr(device)
 
     # Select model class
     if model_type not in MODEL_TYPES:
@@ -128,7 +141,35 @@ def cnn_experiment(
     #   for you automatically.
     fit_res = None
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    in_size = ds_train[0][0].shape
+    out_classes = len(ds_train.classes)
+    dl_train = DataLoader(ds_train, batch_size=bs_train, drop_last=True)
+    dl_test = DataLoader(ds_test, batch_size=bs_test, drop_last=True)
+
+    channels = [c for c in filters_per_layer for _ in range(layers_per_block)]
+    resnet_params = {
+        'dropout': dropout,
+        'batchnorm': batchnorm,
+        'bottleneck': bottleneck
+    } if model_type == "resnet" else {}
+    model = model_cls(in_size,
+                      out_classes,
+                      channels,
+                      pool_every,
+                      hidden_dims,
+                      conv_params=conv_params,
+                      activation_type=activation_type,
+                      activation_params=activation_params,
+                      pooling_type=pooling_type,
+                      pooling_params=pooling_params,
+                      **resnet_params,
+                      **kw)
+    clf = ArgMaxClassifier(model)
+    loss_fn = torch.nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=reg)
+    trainer = ClassifierTrainer(clf, loss_fn, optimizer, device)
+    fit_res = trainer.fit(dl_train, dl_test, epochs,
+                          checkpoints, early_stopping, print_every=print_every)
     # ========================
 
     save_experiment(run_name, out_dir, cfg, fit_res)
@@ -221,7 +262,8 @@ def parse_cli():
         default=None,
     )
     sp_exp.add_argument("--lr", type=float, help="Learning rate", default=1e-3)
-    sp_exp.add_argument("--reg", type=float, help="L2 regularization", default=1e-3)
+    sp_exp.add_argument("--reg", type=float,
+                        help="L2 regularization", default=1e-3)
 
     # # Model
     sp_exp.add_argument(

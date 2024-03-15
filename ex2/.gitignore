@@ -280,5 +280,6 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+temp_results/
 
 # End of https://www.gitignore.io/api/python,pycharm,windows,osx,linux
