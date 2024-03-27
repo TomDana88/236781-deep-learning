@@ -385,17 +385,6 @@ which indicates that adding another convolutional block to the network improves 
 part5_q4 = r"""
 **Your answer:**
 
-exp1.1:
-* `K=[32]` fixed with varying `L=2,4,8,16`
-* `K=[64]` fixed with varying `L=2,4,8,16`
-
-exp1.3:
-* `K=[64, 128]` fixed with varying `L=2,3,4`.
-
-exp1.4:
-* `K=[32]` fixed with varying `L=8,16,32`.
-* K=[64, 128, 256] fixed with varying L=2,4,8.
-
 The best results in experiment 4 (and in total) were achieved with `L8_K64-128-256`. This tells us that
 increasing the number of convolutional blocks in the network (adding values to `K`) is more beneficial than
 increasing the number of filters filters in each layer (value of items in `K`) or increasing the depth of each
